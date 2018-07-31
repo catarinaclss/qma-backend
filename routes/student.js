@@ -4,7 +4,6 @@ var router = express.Router();
 var validator = require('validator');
 
 
-
 /**Get all students */
 router.get('/all', function(req, res, next) {
   console.log('all users');
@@ -35,18 +34,42 @@ router.get('/:studentCode', function(req, res, next) {
   });
 });
 
+/* GET student by student code */
+router.get('/info/:studentCode', function(req, res, next) {
+  
+  Student.findOne({studentCode: req.params.studentCode},function(error, user){
+      if(!user){
+        res.json({ success: false, message: 'Estudante não encontrado' });
+      } else{
+        res.json({
+          success: true,
+          userInfo:{
+            email: user.email,
+            name: user.name,
+            phone: user.phone,
+            studentCode: user.studentCode,
+            courseCode: user.courseCode,
+            role: user.role,
+            evaluation: user.evaluation
+          }
+        })
+      }
+  });
+});
+
 /** Create new student */
 router.post('/', function(req, res, next) {
   console.log(req.body);
 
   if(!req.body.email || !req.body.password ||
     !req.body.name || !req.body.studentCode || !req.body.courseCode) {
+
     res.json({ success: false, message: 'Por favor, preencha todos os campos obrigatórios' });
-  }else if(!validator.isEmail(req.body.email)){
+  }
+  else if(!validator.isEmail(req.body.email)){
     res.json({ success: false, message: 'Por favor, insira um email válido' });
-  
-    
-  }else {
+  }
+  else {
 
     var newStudent = new Student({
       name: req.body.name,
@@ -59,7 +82,7 @@ router.post('/', function(req, res, next) {
 
     newStudent.save(function(err) {
       if (err) {
-        return res.json({ success: false, message: 'Este email já existe'});
+        return res.json({ success: false, message: 'Este email e/ou matrícula já existe'});
       }
       res.json({ success: true, message: 'Estudante criado com sucesso!' });
     });

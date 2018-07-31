@@ -21,7 +21,8 @@ var StudentSchema = new mongoose.Schema({
     },
     studentCode: {
         type: String,
-        require: true
+        require: true,
+        unique: true
     },
     courseCode: {
         type: String,
