@@ -1,19 +1,52 @@
 var express = require('express');
 var {Student} = require('../model/Student');
 var router = express.Router();
+var validator = require('validator');
 
-/* GET users listing. */
+
+
+/**Get all students */
 router.get('/all', function(req, res, next) {
-  console.log('teste');
-  res.send('respond with a resource');
+  console.log('all users');
+  Student.find(function(error, users){
+      if(error){
+        res.json({ success: false, message: 'Não foi possível recuperar alunos' });
+      } else{
+        res.json({
+            success: true,
+            students: users
+        })
+      }
+  });
 });
 
+/* GET student by student code */
+router.get('/:studentCode', function(req, res, next) {
+  
+  Student.findOne({studentCode: req.params.studentCode},function(error, user){
+      if(!user){
+        res.json({ success: false, message: 'Estudante não encontrado' });
+      } else{
+        res.json({
+          success: true,
+          student: user
+        })
+      }
+  });
+});
+
+/** Create new student */
 router.post('/', function(req, res, next) {
   console.log(req.body);
+
   if(!req.body.email || !req.body.password ||
     !req.body.name || !req.body.studentCode || !req.body.courseCode) {
-    res.json({ success: false, message: 'Please fill in all required fields' });
-  } else {
+    res.json({ success: false, message: 'Por favor, preencha todos os campos obrigatórios' });
+  }else if(!validator.isEmail(req.body.email)){
+    res.json({ success: false, message: 'Por favor, insira um email válido' });
+  
+    
+  }else {
 
     var newStudent = new Student({
       name: req.body.name,
@@ -26,9 +59,9 @@ router.post('/', function(req, res, next) {
 
     newStudent.save(function(err) {
       if (err) {
-        return res.json({ success: false, message: 'That email address already exists.'});
+        return res.json({ success: false, message: 'Este email já existe'});
       }
-      res.json({ success: true, message: 'Successfully created new student.' });
+      res.json({ success: true, message: 'Estudante criado com sucesso!' });
     });
   }
 });

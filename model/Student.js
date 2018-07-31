@@ -34,6 +34,10 @@ var StudentSchema = new mongoose.Schema({
         type: String,
         enum: ['Student', 'Tutor'],
         default: 'Student'
+    },
+    evaluation:{
+        type: Number,
+        default: 5
     }
 });
 
