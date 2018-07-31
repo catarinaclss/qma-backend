@@ -3,6 +3,9 @@ var {Student} = require('../model/Student');
 var router = express.Router();
 var validator = require('validator');
 
+function SortByName(x,y) {
+  return ((x.name == y.name) ? 0 : ((x.name > y.name) ? 1 : -1 ));
+}
 
 /**Get all students */
 router.get('/all', function(req, res, next) {
@@ -13,7 +16,7 @@ router.get('/all', function(req, res, next) {
       } else{
         res.json({
             success: true,
-            students: users
+            students: users.sort(SortByName)
         })
       }
   });
