@@ -2,17 +2,55 @@ var express = require('express');
 var {Student} = require('../model/Student');
 var router = express.Router();
 var validator = require('validator');
+var passport = require('passport');
 
 function SortByName(x,y) {
   return ((x.name == y.name) ? 0 : ((x.name > y.name) ? 1 : -1 ));
 }
 
+router.get('/tutor/all', passport.authenticate('jwt', { session: false }), function(req, res, next){
+  Student.find({isTutor: true}, function(error, listTutors){
+    if(error){
+      res.status(500).json({ success: false, message: 'Não foi possível retornar tutores'});
+    }else if(!listTutors){
+      res.status(200).json({ success: false, message: 'Não existem tutores'});
+    }else{
+      res.status(200).json({
+        success: true,
+        tutors: listTutors 
+      })
+    }
+  });
+});
+  
+
+router.post('/new/tutor', passport.authenticate('jwt', { session: false }), function(req, res, next){
+  console.log( req.body.studentCode);
+
+  Student.findOneAndUpdate({studentCode: req.body.studentCode}, 
+    {$set: {isTutor: true, tutorInfo:{discipline: req.body.discipline, proficiency: req.body.proficiency}}} , function(error, user){
+      
+      if(!user || error){
+        console.log( error);
+
+        res.status(400).json({ success: false, message: 'Não foi possível efetuar ação'});
+      } else {
+          res.status(200).json({
+          success: true,
+          message: 'Usuário ' + user.name + ' virou tutor',
+          discipline: req.body.discipline
+        });
+      }
+  });
+
+});
+
 /**Get all students */
-router.get('/all', function(req, res, next) {
+router.get('/all', passport.authenticate('jwt', { session: false }), function(req, res, next) {
   console.log('all users');
   Student.find(function(error, users){
-      if(error){
-        res.json({ success: false, message: 'Não foi possível recuperar alunos' });
+      if(!users || error){
+        res.status(500).json({ success: false, message: 'Não foi possível recuperar alunos' });
       } else{
         res.json({
             success: true,
@@ -23,13 +61,13 @@ router.get('/all', function(req, res, next) {
 });
 
 /* GET student by student code */
-router.get('/:studentCode', function(req, res, next) {
+router.get('/:studentCode', passport.authenticate('jwt', { session: false }), function(req, res, next) {
   
   Student.findOne({studentCode: req.params.studentCode},function(error, user){
-      if(!user){
-        res.json({ success: false, message: 'Estudante não encontrado' });
+      if(!user || error){
+        res.status(500).json({ success: false, message: 'Não foi possível recuperar estudante' });
       } else{
-        res.json({
+        res.status(200).json({
           success: true,
           student: user
         })
@@ -38,13 +76,13 @@ router.get('/:studentCode', function(req, res, next) {
 });
 
 /* GET student by student code */
-router.get('/info/:studentCode', function(req, res, next) {
+router.get('/info/:studentCode', passport.authenticate('jwt', { session: false }), function(req, res, next) {
   
   Student.findOne({studentCode: req.params.studentCode},function(error, user){
-      if(!user){
-        res.json({ success: false, message: 'Estudante não encontrado' });
+      if(!user || error){
+        res.status(500).json({ success: false, message: 'Não foi possivel retornar estudante' });
       } else{
-        res.json({
+        res.status(200).json({
           success: true,
           userInfo:{
             email: user.email,
@@ -67,10 +105,10 @@ router.post('/', function(req, res, next) {
   if(!req.body.email || !req.body.password ||
     !req.body.name || !req.body.studentCode || !req.body.courseCode) {
 
-    res.json({ success: false, message: 'Por favor, preencha todos os campos obrigatórios' });
+    res.status(400).json({ success: false, message: 'Por favor, preencha todos os campos obrigatórios' });
   }
   else if(!validator.isEmail(req.body.email)){
-    res.json({ success: false, message: 'Por favor, insira um email válido' });
+    res.status(400).json({ success: false, message: 'Por favor, insira um email válido' });
   }
   else {
 
@@ -85,9 +123,9 @@ router.post('/', function(req, res, next) {
 
     newStudent.save(function(err) {
       if (err) {
-        return res.json({ success: false, message: 'Este email e/ou matrícula já existe'});
+        return res.status(400).json({ success: false, message: 'Este email e/ou matrícula já existe'});
       }
-      res.json({ success: true, message: 'Estudante criado com sucesso!' });
+      res.status(200).json({ success: true, message: 'Estudante criado com sucesso!' });
     });
   }
 });

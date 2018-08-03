@@ -6,13 +6,6 @@ var {Student} = require('../model/Student');
 var passport = require('passport');
 
 
-
-/* GET users listing. */
-router.get('/test', function(req, res, next) {
-    console.log('teste');
-    res.send('respond with a resource');
-  });
-
 router.get('/dashboard', passport.authenticate('jwt', { session: false }), function(req, res) {  
   res.send('It worked! User id is: ' + req.user._id + '.');
 });
@@ -36,7 +29,7 @@ router.post('/login', (req, res, next) => {
             if (isMatch && !err) {
               
                 let generatedToken = jwt.sign(user.toJSON(), config.JWT_SECRET_KEY, {
-                    expiresIn: 86400000 // in seconds
+                    expiresIn: '30m' // in seconds
                 });
                 res.json({ success: true, token: 'jwt ' + generatedToken });
             } else {

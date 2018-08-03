@@ -31,14 +31,27 @@ var StudentSchema = new mongoose.Schema({
     phone: {
         type: String
     },
-    role: {
-        type: String,
-        enum: ['Student', 'Tutor'],
-        default: 'Student'
+    isTutor: {
+        type: Boolean,
+        default: false
     },
     evaluation:{
         type: Number,
         default: 5
+    },
+    tutorInfo: {
+        discipline: {
+            type: String,
+            require: true
+        },
+        proficiency: {
+            type: Number,
+            require: true
+        },
+        evaluation: {
+            type: Number,
+            default: 5
+        }
     }
 });
 
