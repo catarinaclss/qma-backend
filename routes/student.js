@@ -8,11 +8,27 @@ function SortByName(x,y) {
   return ((x.name == y.name) ? 0 : ((x.name > y.name) ? 1 : -1 ));
 }
 
+router.get('/tutor/:studentCode', passport.authenticate('jwt', { session: false }), function(req, res){
+  Student.findOne({studentCode: req.params.studentCode, isTutor: true}, function(error, user){
+    if(error){
+      res.status(500).json({success: false, message: 'Não foi possível retornar tutor'});
+    }else if(!user){
+      res.status(204).json({success: false, message: 'Este usuário não é um tutor'});
+
+    }else{
+      res.status(200).json({
+        success: true,
+        tutor: user
+      });
+    }
+  });
+});
+
 router.get('/tutor/all', passport.authenticate('jwt', { session: false }), function(req, res, next){
   Student.find({isTutor: true}, function(error, listTutors){
     if(error){
       res.status(500).json({ success: false, message: 'Não foi possível retornar tutores'});
-    }else if(!listTutors){
+    }else if(listTutors.length === 0){
       res.status(200).json({ success: false, message: 'Não existem tutores'});
     }else{
       res.status(200).json({
