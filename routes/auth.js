@@ -29,7 +29,7 @@ router.post('/login', (req, res, next) => {
             if (isMatch && !err) {
               
                 let generatedToken = jwt.sign(user.toJSON(), config.JWT_SECRET_KEY, {
-                    expiresIn: '30m' // in seconds
+                    expiresIn: '60m'
                 });
                 res.json({ success: true, token: 'jwt ' + generatedToken });
             } else {

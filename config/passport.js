@@ -1,3 +1,7 @@
+/**
+ * Passport configuration
+ * Handling authentication system
+ */
 var JwtStrategy = require('passport-jwt').Strategy;
 var ExtractJwt = require('passport-jwt').ExtractJwt; 
 var {Student} = require('../model/Student');

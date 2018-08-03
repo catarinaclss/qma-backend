@@ -1,3 +1,6 @@
+/**
+ * Database configuration
+ */
 var config = require('../config/appConfig');
 
 var mongoose = require('mongoose');
