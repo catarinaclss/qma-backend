@@ -84,7 +84,6 @@ StudentSchema.methods.comparePasswords = function(password, callback ){
       });
 };
 
-
 var Student = mongoose.model('student', StudentSchema);
 
 module.exports = { Student }

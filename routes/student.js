@@ -48,7 +48,6 @@ router.post('/new/tutor', passport.authenticate('jwt', { session: false }), func
       
       if(!user || error){
         console.log( error);
-
         res.status(400).json({ success: false, message: 'Não foi possível efetuar ação'});
       } else {
           res.status(200).json({

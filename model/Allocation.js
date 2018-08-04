@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 
 var AllocationSchema = new mongoose.Schema({
-    tutorCode: {
+    email: {
         type: String,
         required: true
     },
-    locals: {
-        type: [],
+    local: {
+        type: String,
         required: true
     },
     schedule:{
@@ -14,10 +14,9 @@ var AllocationSchema = new mongoose.Schema({
             type: String,
             enum: ['seg', 'ter', 'qua', 'qui', 'sex']
         },
-        availableTimes: {
-            type: []
-        },
-        type: []
+        availableTime: {
+            type: String
+        }
     }
 });
 
