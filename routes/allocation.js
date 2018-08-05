@@ -4,59 +4,62 @@ var {Student} = require('../model/Student');
 var {Allocation} = require('../model/Allocation');
 
 
-/* GET allocation time 
+/* Check availability for local */
 
-router.post('/checkLocal', function(req, res, next) {
+router.post('/checkLocal', passport.authenticate('jwt', { session: false }), function(req, res, next) {
 
   console.log( req.body);
-  if(!req.body.email || !req.body.schedule.dayOfWeek || req.body.schedule.availableTime.length === 0){
-    res.status(400).json({success: false, message: 'Não foi possível capturar disponibilidade para este horário e dia. Preencha todos os campos'});
+  if(!req.body.email || !req.body.local){
+    res.status(400).json({success: false, message: 'Não foi possível capturar atendimento para este local. Preencha todos os campos'});
   }else{
-    Allocation.findOne({email: req.body.email, schedule:{dayOfWeek: req.body.schedule.dayOfWeek, availableTime: req.body.schedule.availableTime }}, function(error, isAvailable){
+    Allocation.findOne({email: req.body.email, local: req.body.local}, function(error, isAvailable){
       if(error){
         res.status(400).json({success: false, message: 'Não foi possível consultar este horário e dia'});
       }else{
         if(isAvailable){
-          res.status(200).json({ success: true, message: 'Dia e hora disponíveis para atendimento' });  
+          res.status(200).json({ success: true, message: 'Local está disponível para atendimento' });  
         }else{
-          res.status(200).json({ success: false, message: 'Não existe disponibilidade neste dia e hora' });  
+          res.status(200).json({ success: false, message: 'Não existe disponibilidade neste local' });  
         } 
       }
     });
   }
   });
 
-
-router.post('/local', function(req, res, next) {
+/**
+ * POST availability for a local
+ */
+router.post('/local', passport.authenticate('jwt', { session: false }), function(req, res, next) {
 
   console.log( req.body);
-  if(!req.body.email || !req.body.schedule.local){
+  if(!req.body.email || !req.body.local){
     res.status(400).json({success: false, message: 'Não foi possível criar alocação para atendimento. Preencha todos os campos'});
   }else{
-      
-      Student.findOne({email: req.body.email, isTutor: true}, function(error, tutor){
-      if(error){
-        res.status(400).json({success: false, message: 'Não foi possível definir alocação para este usuário'});
-      }else if(!tutor){
-        res.status(400).json({success: false, message: 'Este tutor não está cadastrado no sistema'});
-      }else{
-        console.log('found tutor');
-          Allocation.findOneAndUpdate({email: req.body.email}, {$set:{local: req.body.local}}, function(error, allocation){
-            if (err) {
-              return res.status(400).json({ success: false, message: 'Não foi possível definir cronograma de atendimento'});
-            }else{
-              res.status(200).json({ success: true, message: 'Alocação criada com sucesso!' , response: allocation });
-            }
-          }); 
-        
-      }
+    console.log('aqui2');
+    var newAllocation = new Allocation({
+      email: req.body.email,
+      local: req.body.local
+    });
+
+    console.log(newAllocation);
+
+    newAllocation.save(function(error) {
+    if(error){
+      console.log(error);
+
+      return res.status(500).json({ success: false, message: 'Não foi possível disponibilizar este local para atendimento'});
+    }else{
+      res.status(200).json({ success: true, message: 'Você definiu local para atendimento com sucesso!' , response: newAllocation });
+    }
   });
-  }
+}
 
-});*/
+});
 
-
-router.post('/checkTime', function(req, res, next) {
+/**
+ * Check availability of time and date 
+ */
+router.post('/checkTime', passport.authenticate('jwt', { session: false }), function(req, res, next) {
 
   console.log( req.body);
   if(!req.body.email || !req.body.dayOfWeek || !req.body.availableTime){
@@ -79,8 +82,8 @@ router.post('/checkTime', function(req, res, next) {
 
 });
 
-/* POST allocation time */
-router.post('/time', function(req, res, next) {
+/* POST time availability  */
+router.post('/time', passport.authenticate('jwt', { session: false }), function(req, res, next) {
 
   console.log(req.body);
   if(!req.body.email || !req.body.dayOfWeek || !req.body.availableTime){
@@ -110,7 +113,7 @@ router.post('/time', function(req, res, next) {
 
             return res.status(500).json({ success: false, message: 'Não foi possível disponibilizar este horário e dia para atendimento'});
           }else{
-            res.status(200).json({ success: true, message: 'Alocação criada com sucesso!' , response: newAllocation });
+            res.status(200).json({ success: true, message: 'Você definiu dia e horário para atendimento com sucesso!' , response: newAllocation });
           }
         });
       }
