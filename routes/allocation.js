@@ -38,8 +38,7 @@ router.post('/local', function(req, res, next) {
       }else if(!tutor){
         res.status(400).json({success: false, message: 'Este tutor não está cadastrado no sistema'});
       }else{
-        
-        
+        console.log('found tutor');
           Allocation.findOneAndUpdate({email: req.body.email}, {$set:{local: req.body.local}}, function(error, allocation){
             if (err) {
               return res.status(400).json({ success: false, message: 'Não foi possível definir cronograma de atendimento'});
@@ -93,11 +92,11 @@ router.post('/time', function(req, res, next) {
         res.status(400).json({success: false, message: 'Nenhum tutor cadastrado possui este email'});
       }else{
         
-        
-          Allocation.findOneAndUpdate({email: req.body.email}, {$set:{schedule:{dayOfWeek: req.body.dayOfWeek, availableTime: req.body.availableTime}}}, function(error, allocation){
+          Allocation.findOne({email: req.body.email}, function(error, allocation){
             if (err) {
               return res.status(400).json({ success: false, message: 'Não foi possível cadastrar data e hora'});
             }else{
+          
               res.status(200).json({ success: true, message: 'Alocação criada com sucesso!' , response: allocation });
             }
           }); 

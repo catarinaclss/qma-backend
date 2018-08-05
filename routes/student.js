@@ -8,6 +8,58 @@ function SortByName(x,y) {
   return ((x.name == y.name) ? 0 : ((x.name > y.name) ? 1 : -1 ));
 }
 
+/**
+ * GET the proficiency level of a tutor
+ */
+router.get('/tutor/proficiency/:studentCode', function(req, res){
+  Student.findOne({studentCode: req.params.studentCode, isTutor: true}, function(error, tutor){
+    if(error){
+      res.status(500).json({success: false, message: 'Não foi possível retornar nota deste tutor'});
+    }else if(!tutor){
+      res.status(204).json({success: false, message: 'Este usuário não é um tutor'});
+    }else{
+      let tutorProficiency = tutor.tutorInfo.proficiency;
+      let level = '';
+
+      if(tutorProficiency > 4.5){
+        level = 'TOP'
+      }else if(tutorProficiency > 3 && tutorProficiency <= 4.5){
+        level = 'Tutor'
+      }else{
+        level = 'Aprendiz'
+      }
+
+      res.status(200).json({
+        success: true,
+        tutor: tutor.name,
+        nivel: level
+      });
+    }
+  });
+});
+
+/**
+ * GET the tutor's evaluation
+ */
+router.get('/tutor/evaluation/:studentCode', function(req, res){
+  Student.findOne({studentCode: req.params.studentCode, isTutor: true}, function(error, tutor){
+    if(error){
+      res.status(500).json({success: false, message: 'Não foi possível retornar nota deste tutor'});
+    }else if(!tutor){
+      res.status(204).json({success: false, message: 'Este usuário não é um tutor'});
+    }else{
+      res.status(200).json({
+        success: true,
+        tutor: tutor.name,
+        nota: tutor.tutorInfo.evaluation
+      });
+    }
+  });
+});
+
+/**
+ * GET a tutor given a studentCode
+ */
 router.get('/tutor/:studentCode', passport.authenticate('jwt', { session: false }), function(req, res){
   Student.findOne({studentCode: req.params.studentCode, isTutor: true}, function(error, user){
     if(error){
@@ -24,6 +76,9 @@ router.get('/tutor/:studentCode', passport.authenticate('jwt', { session: false 
   });
 });
 
+/**
+ * GET all registered tutors
+ */
 router.get('/tutor/all', passport.authenticate('jwt', { session: false }), function(req, res, next){
   Student.find({isTutor: true}, function(error, listTutors){
     if(error){
@@ -39,7 +94,9 @@ router.get('/tutor/all', passport.authenticate('jwt', { session: false }), funct
   });
 });
   
-
+/**
+ * Save a new tutor
+ */
 router.post('/new/tutor', passport.authenticate('jwt', { session: false }), function(req, res, next){
   console.log( req.body.studentCode);
 
