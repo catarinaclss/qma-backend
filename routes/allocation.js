@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var {Student} = require('../model/Student');
 var {Allocation} = require('../model/Allocation');
+var passport = require('passport');
+
 
 
 /* Check availability for local */

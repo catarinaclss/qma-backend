@@ -14,6 +14,7 @@ var bodyParser = require('body-parser');
 var studentRouter = require('./routes/student');
 var authRouter = require('./routes/auth');
 var allocationRouter = require('./routes/allocation');
+var assistanceRouter = require('./routes/assistance');
 
 var app = express();
 
@@ -54,6 +55,7 @@ require('./config/passport')(passport);
 app.use('/student', studentRouter);
 app.use('/auth', authRouter);
 app.use('/allocation', allocationRouter);
+app.use('/assistance', assistanceRouter);
 
 /**
  * Catch 404 and forward to error handler

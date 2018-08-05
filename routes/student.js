@@ -10,6 +10,25 @@ function SortByName(x,y) {
 }
 
 /**
+ * GET all registered tutors
+ */
+router.get('/tutor/all', function(req, res, next){
+  console.log('mostrar tutores');
+  Student.find({isTutor: true}, function(error, listTutors){
+    if(error){
+      res.status(500).json({ success: false, message: 'Não foi possível retornar tutores'});
+    }else if(listTutors.length === 0){
+      res.status(200).json({ success: false, message: 'Não existem tutores'});
+    }else{
+      res.status(200).json({
+        success: true,
+        tutors: listTutors 
+      })
+    }
+  });
+});
+
+/**
  * GET the proficiency level of a tutor
  */
 router.get('/tutor/proficiency/:studentCode', function(req, res){
@@ -77,23 +96,7 @@ router.get('/tutor/:studentCode', passport.authenticate('jwt', { session: false 
   });
 });
 
-/**
- * GET all registered tutors
- */
-router.get('/tutor/all', passport.authenticate('jwt', { session: false }), function(req, res, next){
-  Student.find({isTutor: true}, function(error, listTutors){
-    if(error){
-      res.status(500).json({ success: false, message: 'Não foi possível retornar tutores'});
-    }else if(listTutors.length === 0){
-      res.status(200).json({ success: false, message: 'Não existem tutores'});
-    }else{
-      res.status(200).json({
-        success: true,
-        tutors: listTutors 
-      })
-    }
-  });
-});
+
   
 /**
  * Save a new tutor
