@@ -5,6 +5,35 @@ var {Allocation} = require('../model/Allocation');
 var {Assistance} = require('../model/Assistance');
 var passport = require('passport');
 
+router.post('/info', function(req, res){
+    Assistance.findOne({_id: req.body._id}, function(error, assistance){
+        if(error || !assistance){
+            res.status(500).json({success: false, message: 'Nenhuma informação de pedido de ajuda foi encontrado'});
+        }else{
+            var assistanceType = "";
+            var date = "";
+
+            if(assistance.isOnline){
+                res.status(200).json({
+                    success: true, 
+                    discipline: assistance.discipline,
+                    type: "Atendimento será do tipo Online",
+                    tutorCode: "Matricula do tutor: " + assistance.tutorCode});
+            }else{
+                res.status(200).json({
+                    success: true, 
+                    discipline: assistance.discipline,
+                    type: "Atendimento será do tipo Presencial",
+                    date: "Esta ajuda será realizada no " + assistance.local + " as " + assistance.time + "h",
+                    tutorCode: "Matricula do tutor: " + assistance.tutorCode});
+
+            }
+
+           
+
+        }
+    });
+});
 
 router.post('/online', function(req, res){
     Student.findOne({studentCode: {$ne: req.body.studentCode}, isTutor: true}, function(error, tutor){
