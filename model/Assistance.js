@@ -14,7 +14,8 @@ var AssistanceSchema = new mongoose.Schema({
         required: true
     },
     isOnline: {
-        type: Boolean
+        type: Boolean,
+        default: false
     },
     dateAndLocal: {
         day: Number,
