@@ -6,18 +6,13 @@ var AllocationSchema = new mongoose.Schema({
         required: true
     },
     local: {
-        type: [],
-        required: true
+        type: String
     },
-    
     dayOfWeek: {
-        type: String,
-        enum: ['seg', 'ter', 'qua', 'qui', 'sex'],
-        required: true
+        type: Number
     },
     availableTime: {
-        type: [],
-        required: true
+        type: String
     }
     
 });
