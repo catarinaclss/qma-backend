@@ -5,7 +5,7 @@ var {Allocation} = require('../model/Allocation');
 var {Assistance} = require('../model/Assistance');
 var passport = require('passport');
 
-router.post('/tutor/evaluation', function(req, res){
+router.post('/tutor/evaluation', passport.authenticate('jwt', { session: false }), function(req, res){
     Assistance.findOne({_id: req.body._id}, function(error, assistance){
         if(error || !assistance){
             res.status(500).json({success: false, message: 'Nenhuma informação de pedido de ajuda foi encontrado'});
@@ -14,41 +14,27 @@ router.post('/tutor/evaluation', function(req, res){
                 if(error || !tutor){
                     res.status(500).json({success: false, message: 'Nenhuma informação do tutor foi encontrada'});
                 }else{
-                    console.log("matric" + assistance.tutorCode);
 
-                    console.log(">>>>" + tutor.tutorInfo);
                     var oldGrade = tutor.tutorInfo.evaluation;
-                    console.log("nota velha" +oldGrade);
-
                     var givenGrade = req.body.evaluation;
-                    console.log("nota dada" +givenGrade);
-
                     var newGrade = (oldGrade*5);
-                    console.log("nota nova" +newGrade/6);
 
                     tutor.tutorInfo.evaluation = Number((newGrade/6).toFixed(2));
-
-                    console.log(">>>>" + tutor.tutorInfo);
-
                 
                     tutor.save(function(error){
                         if(error){
                             res.status(500).json({success: false, message: 'Não foi possivel atualizar nota'});
-
                         }else{
                             res.status(200).json({success: false, message: 'Nota atualizada com sucesso'});
-
                         }
-
                     });
-
                 }
             });
         }
     });
 });
 
-router.post('/info', function(req, res){
+router.post('/info', passport.authenticate('jwt', { session: false }), function(req, res){
     Assistance.findOne({_id: req.body._id}, function(error, assistance){
         if(error || !assistance){
             res.status(500).json({success: false, message: 'Nenhuma informação de pedido de ajuda foi encontrado'});
@@ -69,16 +55,12 @@ router.post('/info', function(req, res){
                     type: "Atendimento será do tipo Presencial",
                     date: "Esta ajuda será realizada no " + assistance.local + " as " + assistance.time + "h",
                     tutorCode: "Matricula do tutor: " + assistance.tutorCode});
-
             }
-
-           
-
         }
     });
 });
 
-router.post('/online', function(req, res){
+router.post('/online', passport.authenticate('jwt', { session: false }), function(req, res){
     Student.findOne({studentCode: {$ne: req.body.studentCode}, isTutor: true}, function(error, tutor){
         if(error || !tutor){
             res.status(500).json({success: false, message: 'Não foram encontrados tutores disponiveis'});
@@ -91,12 +73,10 @@ router.post('/online', function(req, res){
                     discipline: req.body.discipline,
                     isOnline: true
                 });
-                console.log("assistance teste" + newAssistance);
 
                 newAssistance.save(function(error){
                     if(error){
                         res.status(500).json({success: false, message: 'Não foi possivel encontrar um tutor'});
-
                     }else{
                         res.status(200).json({success: true, message: 'Seu pedido de ajuda foi salvo e você possui um tutor disponível. ', availableTutor: {name: tutor.name, contact: tutor.email}});
                     }
