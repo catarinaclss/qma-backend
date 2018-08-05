@@ -5,6 +5,49 @@ var {Allocation} = require('../model/Allocation');
 var {Assistance} = require('../model/Assistance');
 var passport = require('passport');
 
+router.post('/tutor/evaluation', function(req, res){
+    Assistance.findOne({_id: req.body._id}, function(error, assistance){
+        if(error || !assistance){
+            res.status(500).json({success: false, message: 'Nenhuma informação de pedido de ajuda foi encontrado'});
+        }else{
+            Student.findOne({studentCode: assistance.tutorCode}, function(error, tutor){
+                if(error || !tutor){
+                    res.status(500).json({success: false, message: 'Nenhuma informação do tutor foi encontrada'});
+                }else{
+                    console.log("matric" + assistance.tutorCode);
+
+                    console.log(">>>>" + tutor.tutorInfo);
+                    var oldGrade = tutor.tutorInfo.evaluation;
+                    console.log("nota velha" +oldGrade);
+
+                    var givenGrade = req.body.evaluation;
+                    console.log("nota dada" +givenGrade);
+
+                    var newGrade = (oldGrade*5);
+                    console.log("nota nova" +newGrade/6);
+
+                    tutor.tutorInfo.evaluation = Number((newGrade/6).toFixed(2));
+
+                    console.log(">>>>" + tutor.tutorInfo);
+
+                
+                    tutor.save(function(error){
+                        if(error){
+                            res.status(500).json({success: false, message: 'Não foi possivel atualizar nota'});
+
+                        }else{
+                            res.status(200).json({success: false, message: 'Nota atualizada com sucesso'});
+
+                        }
+
+                    });
+
+                }
+            });
+        }
+    });
+});
+
 router.post('/info', function(req, res){
     Assistance.findOne({_id: req.body._id}, function(error, assistance){
         if(error || !assistance){
