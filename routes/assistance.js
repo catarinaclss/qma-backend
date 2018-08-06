@@ -5,6 +5,9 @@ var {Allocation} = require('../model/Allocation');
 var {Assistance} = require('../model/Assistance');
 var passport = require('passport');
 
+/**
+ * Evaluate a tutor
+ */
 router.post('/tutor/evaluation', passport.authenticate('jwt', { session: false }), function(req, res){
     Assistance.findOne({_id: req.body._id}, function(error, assistance){
         if(error || !assistance){
@@ -34,6 +37,9 @@ router.post('/tutor/evaluation', passport.authenticate('jwt', { session: false }
     });
 });
 
+/**
+ * Get assistance info
+ */
 router.post('/info', passport.authenticate('jwt', { session: false }), function(req, res){
     Assistance.findOne({_id: req.body._id}, function(error, assistance){
         if(error || !assistance){
@@ -60,20 +66,25 @@ router.post('/info', passport.authenticate('jwt', { session: false }), function(
     });
 });
 
+/**
+ * Create a request for online assistance
+ */
 router.post('/online', passport.authenticate('jwt', { session: false }), function(req, res){
+    console.log(req.body);
+
     Student.findOne({studentCode: {$ne: req.body.studentCode}, isTutor: true}, function(error, tutor){
         if(error || !tutor){
             res.status(500).json({success: false, message: 'Não foram encontrados tutores disponiveis'});
         }else{
-            
-            if(tutor.tutorInfo.discipline === req.body.discipline && tutor.tutorInfo.proficiency > 3) {
+            console.log(tutor);
+            if( tutor.tutorInfo.discipline === req.body.discipline && tutor.tutorInfo.proficiency > 3) {
                 var newAssistance = new Assistance({
                     tutorCode: tutor.studentCode,
                     studentCode: req.body.studentCode,
                     discipline: req.body.discipline,
                     isOnline: true
                 });
-
+                console.log(newAssistance);
                 newAssistance.save(function(error){
                     if(error){
                         res.status(500).json({success: false, message: 'Não foi possivel encontrar um tutor'});
@@ -82,23 +93,29 @@ router.post('/online', passport.authenticate('jwt', { session: false }), functio
                     }
                 })
 
+            }else{
+                res.status(200).json({success: false, message: 'Nenhum tutor proficiente está disponível no momento '});
+
             }
         }
     });
                 
 });
 
-
+/**
+ * Create a request for presential assistance
+ */
 router.post('/presential', function(req, res){
+    console.log(req.body);
     Student.findOne({studentCode: {$ne: req.body.studentCode}, isTutor: true}, function(error, tutor){
-        if(error || !tutor){
+        if( !tutor || error){
             res.status(500).json({success: false, message: 'Não foram encontrados tutores disponiveis'});
         }else{
-            Allocation.find({email:tutor.email, local: req.body.local}, function(error, allocationForLocal){
+            Allocation.findOne({email:tutor.email, local: req.body.local}, function(error, allocationForLocal){
                 if(error || !allocationForLocal){
                     res.status(500).json({success: false, message: 'Não foram encontrados tutores que atendam no local de interesse'});
                 }else{
-                    Allocation.find( {email:tutor.email, dayOfWeek: req.body.dayOfWeek, availableTime: req.body.availableTime}, function(error, allocationForLocal){
+                    Allocation.findOne( {email:tutor.email, dayOfWeek: req.body.dayOfWeek, availableTime: req.body.availableTime}, function(error, allocationForLocal){
                         if(error || !allocationForLocal){
                             res.status(500).json({success: false, message: 'Não foram encontrados tutores que atendam no local de interesse'});
                         }else{

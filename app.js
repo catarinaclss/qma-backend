@@ -7,6 +7,9 @@ var logger = require('morgan');
 var config = require('./config/appConfig');
 var passport = require('passport');
 var bodyParser = require('body-parser');
+const Docs = require('express-api-doc');
+
+
 
 /**
  * Importing routes
@@ -17,6 +20,8 @@ var allocationRouter = require('./routes/allocation');
 var assistanceRouter = require('./routes/assistance');
 
 var app = express();
+
+
 
 /**
  * Enable Cors to allow interaction between different origins
@@ -74,6 +79,12 @@ app.use(function(err, req, res, next) {
 
   res.status(err.status || 500);
   res.render('error');
+});
+
+const dock = new Docs(app);
+dock.track({
+    path:     './public/restdoc.html',
+    examples: './public/apirest.txt', // responses and requests will save here
 });
 
 module.exports = app;
