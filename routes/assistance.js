@@ -17,7 +17,7 @@ router.post('/tutor/evaluation', passport.authenticate('jwt', { session: false }
 
                     var oldGrade = tutor.tutorInfo.evaluation;
                     var givenGrade = req.body.evaluation;
-                    var newGrade = (oldGrade*5);
+                    var newGrade = (oldGrade*5) + givenGrade;
 
                     tutor.tutorInfo.evaluation = Number((newGrade/6).toFixed(2));
                 

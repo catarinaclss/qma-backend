@@ -1,14 +1,30 @@
 var express = require('express');
-var router = express.Router();
+
 var jwt = require('jsonwebtoken');
 const config = require('../config/appConfig');
 var {Student} = require('../model/Student');
 var passport = require('passport');
+var router = express.Router();
 
-
-router.get('/dashboard', passport.authenticate('jwt', { session: false }), function(req, res) {  
-  res.send('It worked! User id is: ' + req.user._id + '.');
-});
+/**
+ * Check if token is valid
+ */
+router.get('/verifytoken', (req, res, next) => {
+  let token = req.headers['authorization'].split(' ')[1];
+  jwt.verify(token, config.JWT_SECRET_KEY, (err, decode) => {
+      if(!err){
+          res.json({
+              success: true,
+              message: 'Token válido'
+          });
+      } else {
+          res.status(401).json({
+              success: false,
+              error: err
+          });
+      }
+  })
+})
 
 /**
  * Receive email and password 

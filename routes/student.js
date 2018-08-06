@@ -12,8 +12,7 @@ function SortByName(x,y) {
 /**
  * GET all registered tutors
  */
-router.get('/tutor/all', function(req, res, next){
-  console.log('mostrar tutores');
+router.get('/tutor/all', passport.authenticate('jwt', { session: false }),  function(req, res, next){
   Student.find({isTutor: true}, function(error, listTutors){
     if(error){
       res.status(500).json({ success: false, message: 'Não foi possível retornar tutores'});
@@ -31,7 +30,7 @@ router.get('/tutor/all', function(req, res, next){
 /**
  * GET the proficiency level of a tutor
  */
-router.get('/tutor/proficiency/:studentCode', function(req, res){
+router.get('/tutor/proficiency/:studentCode', passport.authenticate('jwt', { session: false }), function(req, res){
   Student.findOne({studentCode: req.params.studentCode, isTutor: true}, function(error, tutor){
     if(error){
       res.status(500).json({success: false, message: 'Não foi possível retornar nota deste tutor'});
@@ -61,7 +60,7 @@ router.get('/tutor/proficiency/:studentCode', function(req, res){
 /**
  * GET the tutor's evaluation
  */
-router.get('/tutor/evaluation/:studentCode', function(req, res){
+router.get('/tutor/evaluation/:studentCode', passport.authenticate('jwt', { session: false }), function(req, res){
   Student.findOne({studentCode: req.params.studentCode, isTutor: true}, function(error, tutor){
     if(error){
       res.status(500).json({success: false, message: 'Não foi possível retornar nota deste tutor'});
@@ -96,13 +95,10 @@ router.get('/tutor/:studentCode', passport.authenticate('jwt', { session: false 
   });
 });
 
-
-  
 /**
  * Save a new tutor
  */
 router.post('/new/tutor', passport.authenticate('jwt', { session: false }), function(req, res, next){
-  console.log( req.body.studentCode);
 
   Student.findOneAndUpdate({studentCode: req.body.studentCode}, 
     {$set: {isTutor: true, tutorInfo:{discipline: req.body.discipline, proficiency: req.body.proficiency}}} , function(error, user){
@@ -124,6 +120,7 @@ router.post('/new/tutor', passport.authenticate('jwt', { session: false }), func
 /**Get all students */
 router.get('/all', passport.authenticate('jwt', { session: false }), function(req, res, next) {
   console.log('all users');
+
   Student.find(function(error, users){
       if(!users || error){
         res.status(500).json({ success: false, message: 'Não foi possível recuperar alunos' });
@@ -176,7 +173,6 @@ router.get('/info/:studentCode', passport.authenticate('jwt', { session: false }
 
 /** Create new student */
 router.post('/', function(req, res, next) {
-  console.log(req.body);
 
   if(!req.body.email || !req.body.password ||
     !req.body.name || !req.body.studentCode || !req.body.courseCode) {
